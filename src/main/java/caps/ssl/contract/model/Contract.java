@@ -2,14 +2,17 @@ package caps.ssl.contract.model;
 
 import caps.ssl.member.model.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
+@Setter
 public class Contract {
 
     @Id
@@ -26,9 +29,7 @@ public class Contract {
     @Lob
     private String ocrText;
 
-    // analysisResult 필드는 삭제됨
-
-    // Contract와 ContractIssue는 1:N 관계
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<ContractIssue> contractIssues = new ArrayList<>();
 }
