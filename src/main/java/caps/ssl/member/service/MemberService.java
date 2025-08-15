@@ -20,6 +20,10 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
 
+        if (memberRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
+            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
+        }
+
         Member member = Member.builder()
                 .nickname(requestDto.getNickname())
                 .password(requestDto.getPassword())
