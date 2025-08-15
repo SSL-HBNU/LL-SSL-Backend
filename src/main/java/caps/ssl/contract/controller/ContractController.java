@@ -15,16 +15,16 @@ import java.util.Map;
 public class ContractController {
     private final ContractService contractService;
 
-//    @PostMapping(value = "/{memberId}/upload", consumes = "multipart/form-data")
-//    public ResponseEntity<?> uploadAndAnalyzeContract(@PathVariable Long memberId, @RequestPart("file") MultipartFile file) throws Exception{
-//        try{
-//            Contract saved = contractService.save(memberId, file);
-//            Map<String, Object> result = contractService.analyze(saved, file);
-//            return ResponseEntity.ok(result);
-//        } catch(Exception e){
-//            return ResponseEntity.status(500).body("분석 오류: " + e.getMessage());
-//        }
-//    }
+    @PostMapping(value = "/{memberId}/upload", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadAndAnalyzeContract(@PathVariable Long memberId, @RequestPart("file") MultipartFile file) throws Exception{
+        try{
+            Contract saved = contractService.save(memberId, file);
+            Map<String, Object> result = contractService.analyze(saved, file);
+            return ResponseEntity.ok(result);
+        } catch(Exception e){
+            return ResponseEntity.status(500).body("분석 오류: " + e.getMessage());
+        }
+    }
 
 
 }

@@ -17,7 +17,7 @@ public class OcrClient {
     @Value("${upstage.api.key}")
     private String apiKey;
 
-    @Value("{upstage.api.url}")
+    @Value("${upstage.api.url}")
     private String ocrApiUrl;
 
     private final RestTemplate restTemplate;

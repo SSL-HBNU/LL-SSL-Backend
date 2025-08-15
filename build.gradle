@@ -37,6 +37,7 @@ dependencies {
 //    JB dependency 추가
     implementation 'org.json:json:20231013'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.696'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
 
 }
