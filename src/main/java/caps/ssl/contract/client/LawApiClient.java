@@ -5,8 +5,8 @@ import caps.ssl.law.model.LawInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,31 +25,29 @@ public class LawApiClient {
     @Value("${law.api.key}")
     private String apiKey;
 
-    @Value("{law.api.oc}")
+    @Value("${law.api.oc}")
     private String oc;
 
-    @Value("law.api.url.search")
+    @Value("${law.api.url.search}")
     private String lawSearchApiUrl;
 
-    @Value("law.api.url.search")
+    @Value("${law.api.url.service}")
     private String lawServiceApiUrl;
 
     private final RestTemplate restTemplate;
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Map<String, List<String>> TARGET_MAP = Map.of(
             "퇴직금", List.of("law"), "최저임금", List.of("law"),
             "근로시간", List.of("law"), "부당해고", List.of("law"),
             "계약해지", List.of("law"), "기타", List.of("law")
     );
-
     private static final Map<String, String> QUERY_MAP = Map.of(
             "최저임금", "최저임금법", "근로시간", "근로기준법",
             "퇴직금", "근로자퇴직급여 보장법", "부당해고", "근로기준법",
             "계약해지", "근로기준법"
     );
-
     public List<LawInfo> searchRelatedLaws(String issueType, Contract contract) {
         String query = QUERY_MAP.getOrDefault(issueType, issueType);
         List<LawInfo> allLaws = new ArrayList<>();
@@ -92,24 +90,27 @@ public class LawApiClient {
         }
         return "";
     }
-
     private List<LawInfo> parseLawSearchJson(String json, Contract contract) throws Exception {
         JsonNode root = objectMapper.readTree(json);
         JsonNode lawNodes = root.path("LawSearch").path("law");
         List<LawInfo> laws = new ArrayList<>();
         if (lawNodes.isArray()) {
             for (JsonNode node : lawNodes) {
+                String relativeUrl = node.path("법령상세링크").asText();
+                String absoluteUrl = "https://www.law.go.kr" + relativeUrl;
+
                 laws.add(LawInfo.builder()
                         .lawName(node.path("법령명한글").asText())
                         .lawSerialNumber(node.path("법령일련번호").asText())
                         .referenceNumber(node.path("공포번호").asText())
-                        .detailUrl(node.path("법령상세링크").asText())
+                        .detailUrl(absoluteUrl)
                         .contract(contract)
                         .build());
             }
         }
         return laws;
     }
+
 
     private String parseLawDetailJson(String json) throws Exception {
         JsonNode root = objectMapper.readTree(json);
@@ -158,7 +159,7 @@ public class LawApiClient {
 
     private String stripHtmlTags(String htmlText) {
         if (htmlText == null) return "";
+        // <br/> 태그는 줄바꿈으로, 나머지 HTML 태그는 제거
         return htmlText.replaceAll("<br/>", "\n").replaceAll("<[^>]*>", "");
     }
-
 }

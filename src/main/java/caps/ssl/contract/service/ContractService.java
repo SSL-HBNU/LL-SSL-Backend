@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -52,6 +53,15 @@ public class ContractService {
         Contract contract = Contract.builder().member(member).build();
 
         return contractRepository.save(contract);
+    }
+
+    public List<Contract> findAllByMemberId(Long memberId) {
+        return contractRepository.findByMemberId(memberId);
+    }
+
+    public Contract findById(Long contractId) {
+        return contractRepository.findById(contractId)
+                .orElseThrow(() -> new IllegalArgumentException("계약서를 찾을 수 없습니다."));
     }
 
 }

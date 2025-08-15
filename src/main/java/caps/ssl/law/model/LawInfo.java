@@ -3,16 +3,14 @@ package caps.ssl.law.model;
 import caps.ssl.contract.model.Contract;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Setter
 public class LawInfo {
 
     @Id
@@ -28,7 +26,9 @@ public class LawInfo {
 
     private String lawSerialNumber;
 
-    // LawInfo와 ContractIssue는 1:N 관계
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String summary;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id")
     @JsonBackReference
