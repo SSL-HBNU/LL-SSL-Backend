@@ -5,6 +5,7 @@ import caps.ssl.member.dto.MemberSignupReqDto;
 import caps.ssl.member.dto.MemberUpdateReqDto;
 import caps.ssl.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,14 @@ public class MemberController {
 
     // 사용자 추가
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody MemberSignupReqDto requestDto) {
-        Long memberId = memberService.signup(requestDto);
-        return ResponseEntity.created(URI.create("/api/members/" + memberId)).build();
+    public ResponseEntity<?> signup(@RequestBody MemberSignupReqDto requestDto) {
+        try {
+            Long memberId = memberService.signup(requestDto);
+            return ResponseEntity.created(URI.create("/api/members/" + memberId)).build();
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 
