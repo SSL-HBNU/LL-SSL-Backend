@@ -28,4 +28,5 @@ public class ContractIssue {
     // 어떤 계약서 내용 때문에 이슈가 발생했는지 저장
     @Lob
     private String triggerText;
+
 }
