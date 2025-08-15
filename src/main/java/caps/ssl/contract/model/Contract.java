@@ -1,5 +1,7 @@
 package caps.ssl.contract.model;
 
+import caps.ssl.contract.dto.Issue;
+import caps.ssl.law.model.LawInfo;
 import caps.ssl.member.model.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,7 +31,14 @@ public class Contract {
     @Lob
     private String ocrText;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    @Column(columnDefinition = "TEXT")
+    private String issuesJson;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "contract_issues", joinColumns = @JoinColumn(name = "contract_id"))
+    private List<Issue> issues = new ArrayList<>();
+
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ContractIssue> contractIssues = new ArrayList<>();
+    private List<LawInfo> lawInfos = new ArrayList<>();
 }
