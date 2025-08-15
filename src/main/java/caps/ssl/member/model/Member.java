@@ -21,4 +21,13 @@ public class Member {
 
     @Column(unique = true)
     private String phoneNumber;
+
+    public void update(String nickname, String password) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (password != null) {
+            this.password = password;
+        }
+    }
 }
