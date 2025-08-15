@@ -1,10 +1,12 @@
 package caps.ssl.contract.controller;
 
 import caps.ssl.contract.dto.ContractResponseDTO;
+import caps.ssl.contract.exception.InvalidContractException;
 import caps.ssl.contract.model.Contract;
 import caps.ssl.contract.service.ContractService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,15 +23,32 @@ public class ContractController {
 
     @Operation(summary = "계약서 OCR")
     @PostMapping(value = "/{memberId}/upload", consumes = "multipart/form-data")
-    public ResponseEntity<?> uploadAndAnalyzeContract(@PathVariable Long memberId, @RequestPart("file") MultipartFile file) throws Exception{
-        try{
+    public ResponseEntity<?> uploadAndAnalyzeContract(
+            @PathVariable Long memberId,
+            @RequestPart("file") MultipartFile file) {
+
+        try {
             Contract saved = contractService.save(memberId, file);
             Map<String, Object> result = contractService.analyze(saved, file);
             return ResponseEntity.ok(result);
-        } catch(Exception e){
-            return ResponseEntity.status(500).body("분석 오류: " + e.getMessage());
+
+        } catch (InvalidContractException ice) {
+            // 계약서 검증 실패 (400 Bad Request)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "error", "INVALID_CONTRACT",
+                            "message", ice.getMessage()
+                    ));
+        } catch (Exception e) {
+            // 시스템 오류 (500 Internal Server Error)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "OCR_PROCESSING_ERROR",
+                            "message", "계약서 처리 중 오류 발생: " + e.getMessage()
+                    ));
         }
     }
+
 
     @Operation(summary = "계약서 목록 조회")
     @GetMapping
