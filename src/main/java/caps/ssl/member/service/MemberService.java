@@ -23,7 +23,7 @@ public class MemberService {
     }
 
     // 사용자 정보 수정
-    @Transactional // 데이터 변경이 있으므로 readOnly=false (기본값)
+    @Transactional
     public Long updateMemberProfile(Long memberId, MemberUpdateDto requestDto) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. id=" + memberId));
