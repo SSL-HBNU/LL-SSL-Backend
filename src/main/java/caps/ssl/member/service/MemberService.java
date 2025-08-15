@@ -1,8 +1,6 @@
 package caps.ssl.member.service;
 
-import caps.ssl.member.dto.MemberResDto;
-import caps.ssl.member.dto.MemberSignupReqDto;
-import caps.ssl.member.dto.MemberUpdateReqDto;
+import caps.ssl.member.dto.*;
 import caps.ssl.member.model.Member;
 import caps.ssl.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +63,18 @@ public class MemberService {
     public Member findById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. id: " + id));
+    }
+
+    // 로그인 기능
+    @Transactional(readOnly = true)
+    public LoginResDto login(LoginReqDto requestDto) {
+        Member member = memberRepository.findByNickname(requestDto.getNickname())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 닉네임입니다."));
+
+        if (!member.getPassword().equals(requestDto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return new LoginResDto(member.getId());
     }
 }

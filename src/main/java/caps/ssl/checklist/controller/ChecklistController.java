@@ -39,8 +39,14 @@ public class ChecklistController {
 
     // 계약서 ID로 체크리스트 조회
     @GetMapping("/contract/{contractId}")
-    public ResponseEntity<ChecklistResDto> getChecklist(@PathVariable Long contractId) {
-        ChecklistResDto responseDto = checklistService.getChecklistByContractId(contractId);
-        return ResponseEntity.ok(responseDto);
+    public ResponseEntity<?> getChecklist(@PathVariable Long contractId) {
+        try {
+            ChecklistResDto responseDto = checklistService.getChecklistByContractId(contractId);
+            return ResponseEntity.ok(responseDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 }
