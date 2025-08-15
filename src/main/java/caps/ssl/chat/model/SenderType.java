@@ -1,4 +1,4 @@
-package caps.ssl.checklist.model;
+package caps.ssl.chat.model;
 
 public enum SenderType {
     USER, // 사용자

@@ -1,6 +1,7 @@
 package caps.ssl.member.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,5 +30,12 @@ public class Member {
         if (password != null) {
             this.password = password;
         }
+    }
+
+    @Builder
+    public Member(String nickname, String password, String phoneNumber) {
+        this.nickname = nickname;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -2,7 +2,6 @@ package caps.ssl.chat.model;
 
 import caps.ssl.contract.model.Contract;
 import caps.ssl.member.model.Member;
-import caps.ssl.checklist.model.SenderType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
