@@ -1,6 +1,7 @@
 package caps.ssl.checklist.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,14 @@ public class ChecklistItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checklist_id")
     private Checklist checklist;
+
+    public void setChecklist(Checklist checklist) {
+        this.checklist = checklist;
+    }
+
+    @Builder
+    public ChecklistItem(Integer itemNumber, boolean isChecked){
+        this.itemNumber = itemNumber;
+        this.isChecked = isChecked;
+    }
 }

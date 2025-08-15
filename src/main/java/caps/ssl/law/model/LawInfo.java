@@ -1,15 +1,18 @@
 package caps.ssl.law.model;
 
-import caps.ssl.contract.model.ContractIssue;
+import caps.ssl.contract.model.Contract;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class LawInfo {
 
     @Id
@@ -23,7 +26,11 @@ public class LawInfo {
 
     private String detailUrl;
 
+    private String lawSerialNumber;
+
     // LawInfo와 ContractIssue는 1:N 관계
-    @OneToMany(mappedBy = "lawInfo", cascade = CascadeType.ALL)
-    private List<ContractIssue> contractIssues = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id")
+    @JsonBackReference
+    private Contract contract;
 }
