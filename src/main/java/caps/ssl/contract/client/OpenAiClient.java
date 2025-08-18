@@ -112,20 +112,38 @@ public class OpenAiClient {
     // OpenAiClient.java
     public List<ChecklistItem> analyzeChecklist(String text) {
         String prompt = String.format("""
-    다음 근로계약서를 아래 9개 체크리스트 항목 기준으로 분석해주세요.
-    반드시 아래 JSON 형식으로 응답:
+    다음 근로계약서를 아래 8개 체크리스트 항목 기준으로 분석해주세요.
+    각 항목에 대해:
+    1. isChecked: 계약서에 해당 항목이 명시되어 있는지 여부 (true/false)
+    2. note: 항목의 상태와 실제 내용을 간결하게 표현
+    
+    반드시 아래 형식으로 note를 작성:
+    - 항목이 명시된 경우: "[항목명]이 명시됨: [실제 내용]"
+    - 항목이 명시되지 않은 경우: "[항목명]이 명시되지 않음"
+    
+    예시:
+    {
+      "itemNumber": 0,
+      "isChecked": true,
+      "note": "근무장소가 명시됨: 서울시 강남구 역삼동"
+    }
+    {
+      "itemNumber": 1,
+      "isChecked": false,
+      "note": "수습 기간이 명시되지 않음"
+    }
+    
+    반드시 JSON 형식으로 응답:
+    
     {
       "items": [
-        {
-          "itemNumber": 0,
-          "isChecked": true,
-          "note": "근무장소가 명시됨"
-        },
-        // ... 나머지 항목
+        { "itemNumber": 0, "isChecked": true, "note": "근무장소가 명시됨: 서울시 강남구 역삼동" },
+        { "itemNumber": 1, "isChecked": false, "note": "수습 기간이 명시되지 않음" },
+        // ... 다른 항목들
       ]
     }
     
-    체크리스트:
+    체크리스트 항목:
     0. 근무장소
     1. 수습 기간
     2. 임금 조건
@@ -134,7 +152,6 @@ public class OpenAiClient {
     5. 퇴직금 지급 조건
     6. 4대 보험 가입 여부
     7. 기타 특약 조항
-    8. 경업금지 조항
 
     --- 계약서 ---
     %s
@@ -142,28 +159,24 @@ public class OpenAiClient {
 
         String response = getGptResponse(prompt);
         response = cleanJsonContent(response);
+        log.info("OpenAI Checklist Response: {}", response);
 
         List<ChecklistItem> items = new ArrayList<>();
-        log.info("OpenAI Response: {}", response); // 응답 로깅 추가
-
         try {
             JsonNode root = objectMapper.readTree(response);
             JsonNode itemsNode = root.path("items");
 
             if (itemsNode.isArray()) {
                 for (JsonNode node : itemsNode) {
-                    ChecklistItem item = ChecklistItem.builder()
+                    items.add(ChecklistItem.builder()
                             .itemNumber(node.path("itemNumber").asInt())
                             .isChecked(node.path("isChecked").asBoolean())
-                            .guide(node.path("note").asText())
-                            .build();
-                    items.add(item);
+                            .guide(node.path("note").asText()) // note를 guide로 바로 사용
+                            .build());
                 }
-            } else {
-                log.error("Invalid items structure: {}", itemsNode);
             }
         } catch (Exception e) {
-            log.error("Checklist JSON 파싱 실패: {}", response, e);
+            log.error("Checklist JSON 파싱 실패", e);
         }
         return items;
     }

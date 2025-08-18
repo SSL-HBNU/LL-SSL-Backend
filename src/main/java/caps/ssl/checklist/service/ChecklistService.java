@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,15 +28,6 @@ public class ChecklistService {
 
     @Transactional
     public ChecklistResDto createChecklist(ChecklistCreateReqDto requestDto) {
-
-        if (requestDto.getItems() == null || requestDto.getItems().isEmpty()) {
-            throw new IllegalArgumentException("체크리스트 항목이 비어있습니다.");
-        }
-
-        if (requestDto.getItems().size() != 8) {
-            throw new IllegalArgumentException("체크리스트 항목은 반드시 8개여야 합니다.");
-        }
-
         Contract contract = contractRepository.findById(requestDto.getContractId())
                 .orElseThrow(() -> new IllegalArgumentException("계약서를 찾을 수 없습니다."));
 
@@ -47,14 +40,29 @@ public class ChecklistService {
             throw new IllegalArgumentException("계약서 OCR 텍스트가 없습니다.");
         }
 
-        // OpenAI에서 체크리스트 분석
-        List<ChecklistItem> items = openAiClient.analyzeChecklist(ocrText);
+        // AI 분석 실행 (모든 항목에 대한 실제 계약서 내용 포함)
+        List<ChecklistItem> aiItems = openAiClient.analyzeChecklist(ocrText);
 
-        // Checklist 엔티티 생성 및 저장
-        Checklist checklist = Checklist.createChecklist(contract, items);
+        // 클라이언트가 보낸 체크 상태 적용
+        Map<Integer, Boolean> clientChecks = requestDto.getItems().stream()
+                .collect(Collectors.toMap(
+                        ChecklistCreateReqDto.ChecklistItemReqDto::getItemNumber,
+                        ChecklistCreateReqDto.ChecklistItemReqDto::getIsChecked
+                ));
+
+        List<ChecklistItem> finalItems = aiItems.stream()
+                .map(aiItem -> {
+                    Boolean isChecked = clientChecks.getOrDefault(aiItem.getItemNumber(), aiItem.isChecked());
+                    return ChecklistItem.builder()
+                            .itemNumber(aiItem.getItemNumber())
+                            .isChecked(isChecked)
+                            .guide(aiItem.getGuide())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        Checklist checklist = Checklist.createChecklist(contract, finalItems);
         Checklist savedChecklist = checklistRepository.save(checklist);
-
-        // ChecklistResDto 반환
         return new ChecklistResDto(savedChecklist);
     }
 
