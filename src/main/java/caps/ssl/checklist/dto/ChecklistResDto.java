@@ -7,7 +7,6 @@ import lombok.Getter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Getter
 public class ChecklistResDto {
 
@@ -20,11 +19,13 @@ public class ChecklistResDto {
         private Long itemId;
         private Integer itemNumber;
         private Boolean isChecked;
+        private String guide;
 
         public ChecklistItemResDto(ChecklistItem item) {
             this.itemId = item.getId();
             this.itemNumber = item.getItemNumber();
             this.isChecked = item.isChecked();
+            this.guide = item.getGuide();
         }
     }
 

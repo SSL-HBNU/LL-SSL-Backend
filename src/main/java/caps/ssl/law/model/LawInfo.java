@@ -26,7 +26,7 @@ public class LawInfo {
 
     private String lawSerialNumber;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String summary;
 
     @ManyToOne(fetch = FetchType.LAZY)
