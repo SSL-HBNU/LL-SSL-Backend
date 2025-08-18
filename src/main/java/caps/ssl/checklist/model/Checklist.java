@@ -1,16 +1,18 @@
 package caps.ssl.checklist.model;
 
-import caps.ssl.contract.model.Contract;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@Setter
 public class Checklist {
 
     @Id
@@ -20,25 +22,29 @@ public class Checklist {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id")
-    private Contract contract;
+    private caps.ssl.contract.model.Contract contract;
 
-    @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "checklist",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     private List<ChecklistItem> items = new ArrayList<>();
 
+    public void addChecklistItem(ChecklistItem item) {
+        items.add(item);
+        item.setChecklist(this);
+    }
+
     @Builder
-    public Checklist(Contract contract, List<ChecklistItem> items) {
+    public Checklist(caps.ssl.contract.model.Contract contract, List<ChecklistItem> items) {
         this.contract = contract;
         for (ChecklistItem item : items) {
             this.addChecklistItem(item);
         }
     }
 
-    public void addChecklistItem(ChecklistItem checklistItem) {
-        items.add(checklistItem);
-        checklistItem.setChecklist(this);
-    }
-
-    public static Checklist createChecklist(Contract contract, List<ChecklistItem> items) {
+    public static Checklist createChecklist(caps.ssl.contract.model.Contract contract, List<ChecklistItem> items) {
         return Checklist.builder()
                 .contract(contract)
                 .items(items)
