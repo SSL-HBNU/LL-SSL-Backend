@@ -1,9 +1,13 @@
 package caps.ssl.member.model;
 
+import caps.ssl.contract.model.Contract;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +26,11 @@ public class Member {
 
     @Column(unique = true)
     private String phoneNumber;
+
+
+    // 💡 수정된 부분: Member가 삭제되면 모든 Contract도 함께 삭제됩니다.
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contract> contracts = new ArrayList<>();
 
     public void update(String nickname, String password) {
         if (nickname != null) {

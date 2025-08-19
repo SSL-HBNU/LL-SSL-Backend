@@ -85,4 +85,6 @@ public class LawService {
         return lawInfoRepository.findById(lawInfoId)
                 .orElseThrow(() -> new IllegalArgumentException("법률 정보를 찾을 수 없습니다."));
     }
+
+
 }
