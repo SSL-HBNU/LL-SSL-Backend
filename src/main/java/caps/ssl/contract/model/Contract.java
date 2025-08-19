@@ -1,5 +1,7 @@
 package caps.ssl.contract.model;
 
+import caps.ssl.chat.model.ChatRoom;
+import caps.ssl.checklist.model.Checklist;
 import caps.ssl.contract.dto.Issue;
 import caps.ssl.law.model.LawInfo;
 import caps.ssl.member.model.Member;
@@ -41,4 +43,11 @@ public class Contract {
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<LawInfo> lawInfos = new ArrayList<>();
+
+    @OneToOne(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Checklist checklist;
+
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
+
 }

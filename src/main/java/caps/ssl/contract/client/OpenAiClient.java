@@ -88,6 +88,31 @@ public class OpenAiClient {
         }
     }
 
+    // ----------------- 챗봇 응답 생성 (핵심!) -----------------
+    public String getChatbotResponse(String userQuestion, String contractText, String chatHistory) {
+        String prompt = String.format("""
+                당신은 '근로 계약서'의 내용을 분석하고 사용자의 질문에 답변하는 AI 어시스턴트입니다.
+                
+                # 당신의 역할과 규칙:
+                1. 모든 답변은 반드시 아래 제공되는 '계약서 원문'에 근거해야 합니다.
+                2. 절대로 당신의 주관적인 의견, 추측, 또는 법률 자문을 제공해서는 안 됩니다.
+                3. 사용자의 질문에 대한 답이 '계약서 원문'에 명시적으로 나와있지 않다면, "계약서에 해당 내용이 명시되어 있지 않습니다."라고만 답변해야 합니다.
+                4. 이전 대화 내용이 있다면, 그 문맥을 참고하여 답변하세요.
+                5. 답변은 항상 친절하고 간결한 한국어로 작성해주세요.
+
+                --- 계약서 원문 ---
+                %s
+                
+                --- 이전 대화 내용 ---
+                %s
+                
+                --- 사용자의 새로운 질문 ---
+                %s
+                """, contractText, chatHistory, userQuestion);
+
+        return getGptResponse(prompt);
+    }
+
     private List<Issue> parseIssuesFromResponse(String responseBody) {
         List<Issue> issues = new ArrayList<>();
         try {
